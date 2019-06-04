@@ -9,6 +9,8 @@ import (
 	"strconv"
 
 	"github.com/gorilla/mux"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
 )
 
 func Index(w http.ResponseWriter, r *http.Request) {
@@ -48,6 +50,13 @@ func TodoShow(w http.ResponseWriter, r *http.Request) {
 	}
 
 }
+
+var (
+	created = promauto.NewCounter(prometheus.CounterOpts{
+		Name: "huyaber_created",
+		Help: "The total number of created todos",
+	})
+)
 
 /*
 Test with this curl command:
