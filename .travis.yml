@@ -11,3 +11,35 @@ services:
 
 before_install:
 - docker build -t huyaber/huyaber .
+env:
+  global:
+    - GOOGLE_APPLICATION_CREDENTIALS=~/gcloud-service-key.json
+    - PROJECT_NAME_STG=huyaber
+    - CLUSTER_NAME_STG=standard-cluster-1
+    - PROJECT_NAME_PRD=huyaber
+    - CLUSTER_NAME_PRD=standard-cluster-1
+    - CLOUDSDK_COMPUTE_ZONE=us-west1-a
+    - DOCKER_IMAGE_NAME=huyaber
+    - KUBE_DEPLOYMENT_NAME=huyaber
+    - KUBE_DEPLOYMENT_CONTAINER_NAME=huyaber
+    - NODE_ENV=CI
+
+before_deploy:
+  - if [ ! -d "$HOME/google-cloud-sdk/bin" ]; then rm -rf $HOME/google-cloud-sdk; export CLOUDSDK_CORE_DISABLE_PROMPTS=1; curl https://sdk.cloud.google.com | bash; fi
+  - source /home/travis/google-cloud-sdk/path.bash.inc
+  - gcloud --quiet version
+  - gcloud --quiet components update
+  - gcloud --quiet components beta update
+  - gcloud --quiet components update kubectl
+
+deploy:
+  - provider: script
+    script: ./deploy-staging.sh
+    skip_cleanup: true
+    on:
+      branch: development
+  - provider: script
+    script: ./deploy-production.sh
+    skip_cleanup: true
+    on:
+branch: master
