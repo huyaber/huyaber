@@ -2,8 +2,7 @@ language: go
 
 go:
 - 1.x
-- "1.10"
-- 1.11.x
+- 1.14.x
 - master
 
 services:
@@ -26,10 +25,9 @@ env:
 
 before_deploy:
   - if [ ! -d "$HOME/google-cloud-sdk/bin" ]; then rm -rf $HOME/google-cloud-sdk; export CLOUDSDK_CORE_DISABLE_PROMPTS=1; curl https://sdk.cloud.google.com | bash; fi
-  - source /home/travis/google-cloud-sdk/path.bash.inc
+  - source "$HOME/google-cloud-sdk/path.bash.inc"
   - gcloud --quiet version
   - gcloud --quiet components update
-  - gcloud --quiet components beta update
   - gcloud --quiet components update kubectl
 
 deploy:
@@ -37,9 +35,10 @@ deploy:
     script: ./deploy-staging.sh
     skip_cleanup: true
     on:
-      branch: development
+        branch: development
+
   - provider: script
     script: ./deploy-production.sh
     skip_cleanup: true
     on:
-branch: master
+        branch: master
